@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아동 발달 체크리스트 — 서울늘봄메디칼내과의원</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --purple: #D9A404;
+    --purple-light: #FEF6DC;
+    --purple-dark: #8A6A03;
+    --teal: #B8860B;
+    --teal-light: #FBF1D6;
+    --gray-100: #F7F7F5;
+    --gray-200: #EBEBEA;
+    --gray-400: #888780;
+    --gray-600: #5F5E5A;
+    --gray-900: #2C2C2A;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+  }
+  body {
+    font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    background: var(--gray-100);
+    color: var(--gray-900);
+    min-height: 100vh;
+    padding: 0 0 3rem;
+  }
+  .site-header {
+    background: #fff;
+    border-bottom: 0.5px solid var(--gray-200);
+    padding: 1rem 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .logo { font-size: 14px; font-weight: 500; color: var(--purple); }
+  .logo span { color: var(--gray-600); font-weight: 400; }
+  .hero {
+    background: var(--purple);
+    padding: 2.5rem 1.5rem 2rem;
+    text-align: center;
+  }
+  .hero-eyebrow { font-size: 12px; letter-spacing: 0.08em; color: #5A4400; margin-bottom: 8px; text-transform: uppercase; font-weight: 600; }
+  .hero h1 { font-size: 22px; font-weight: 500; color: #fff; margin-bottom: 8px; line-height: 1.4; }
+  .hero p { font-size: 13px; color: #5A4400; line-height: 1.6; }
+  .container { max-width: 600px; margin: 0 auto; padding: 0 1rem; }
+  .age-section { padding: 1.25rem 0 0; }
+  .section-label { font-size: 11px; color: var(--gray-400); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
+  .age-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .age-tab {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--gray-200);
+    background: #fff;
+    font-size: 13px;
+    color: var(--gray-600);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .age-tab:hover { border-color: var(--purple); color: var(--purple); }
+  .age-tab.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+  .domains { display: flex; flex-direction: column; gap: 10px; margin-top: 1.25rem; }
+  .domain-card { background: #fff; border-radius: var(--radius-md); border: 0.5px solid var(--gray-200); overflow: hidden; }
+  .domain-header { padding: 10px 16px; display: flex; align-items: center; gap: 8px; border-bottom: 0.5px solid var(--gray-200); }
+  .domain-icon { font-size: 18px; }
+  .domain-name { font-size: 14px; font-weight: 500; color: var(--gray-900); }
+  .item-list { padding: 4px 0; }
+  .item-row { display: flex; align-items: flex-start; gap: 10px; padding: 9px 16px; cursor: pointer; transition: background 0.1s; }
+  .item-row:hover { background: var(--gray-100); }
+  .cb { width: 20px; height: 20px; border-radius: 5px; border: 1.5px solid var(--gray-200); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .cb.on { background: var(--purple); border-color: var(--purple); }
+  .cb.on::after { content: '✓'; color: #fff; font-size: 12px; font-weight: 600; }
+  .item-text { font-size: 13px; color: var(--gray-900); line-height: 1.6; }
+  .item-text.done { color: var(--gray-400); text-decoration: line-through; }
+  .result-wrap { margin-top: 1.5rem; background: #fff; border-radius: var(--radius-lg); border: 0.5px solid var(--gray-200); padding: 1.25rem; }
+  .verdict-box { display: none; padding: 14px 16px; border-radius: var(--radius-sm); border-left: 3px solid; margin-bottom: 12px; }
+  .verdict-box.show { display: block; }
+  .verdict-box .v-title { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+  .verdict-box .v-desc { font-size: 13px; line-height: 1.7; }
+  .verdict-warn { background: var(--purple-light); border-color: var(--purple); }
+  .verdict-warn .v-title, .verdict-warn .v-desc { color: var(--purple-dark); }
+  .verdict-good { background: var(--teal-light); border-color: var(--teal); }
+  .verdict-good .v-title, .verdict-good .v-desc { color: #085041; }
+  .kakao-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 13px;
+    background: #FEE500; border: none; border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 500; color: #3A1D1D;
+    cursor: pointer; font-family: inherit; text-decoration: none;
+    transition: opacity 0.15s; margin-top: 10px;
+  }
+  .kakao-btn:hover { opacity: 0.88; }
+  .reset-btn {
+    display: block; width: 100%; margin-top: 8px; padding: 8px;
+    background: none; border: 0.5px solid var(--gray-200); border-radius: var(--radius-sm);
+    font-size: 12px; color: var(--gray-600); cursor: pointer; font-family: inherit;
+    transition: background 0.1s;
+  }
+  .reset-btn:hover { background: var(--gray-100); }
+  .send-btn {
+    display: block; width: 100%; margin-top: 12px; padding: 11px;
+    background: var(--purple); border: none; border-radius: var(--radius-sm);
+    font-size: 13px; font-weight: 500; color: #fff;
+    cursor: pointer; font-family: inherit; transition: opacity 0.15s;
+  }
+  .send-btn:hover { opacity: 0.88; }
+  .send-done { font-size: 13px; color: var(--teal); text-align: center; margin-top: 8px; }
+  .input-group { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .input-group input {
+    width: 100%; padding: 10px 12px;
+    border: 1px solid var(--gray-200); border-radius: var(--radius-sm);
+    font-size: 13px; font-family: inherit; color: var(--gray-900);
+    background: #fff;
+  }
+  .input-group input:focus { outline: none; border-color: var(--purple); }
+  .input-label { font-size: 12px; color: var(--gray-600); margin-bottom: 2px; }
+  .site-footer { margin-top: 2.5rem; text-align: center; padding: 1.5rem 1rem; border-top: 0.5px solid var(--gray-200); }
+  .site-footer p { font-size: 12px; color: var(--gray-400); line-height: 1.8; }
+  .site-footer strong { color: var(--gray-600); font-weight: 500; }
+  @media (max-width: 480px) {
+    .hero h1 { font-size: 18px; }
+    .age-tab { font-size: 12px; padding: 6px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">서울늘봄 <span>메디칼내과의원</span></div>
+</header>
+
+<div class="hero">
+  <p class="hero-eyebrow">아동 발달 체크리스트</p>
+  <h1>우리 아이 발달,<br>지금 어떤 단계일까요?</h1>
+  <p>해당하는 항목을 모두 체크해 주세요.<br>전문가가 함께 결과를 확인해 드립니다.</p>
+</div>
+
+<div class="container">
+  <div class="age-section">
+    <p class="section-label">연령 선택</p>
+    <div class="age-tabs" id="ageTabs"></div>
+  </div>
+  <div class="domains" id="domainWrap"></div>
+  <div class="result-wrap" id="resultWrap" style="display:none">
+    <div class="verdict-box verdict-warn" id="boxWarn">
+      <div class="v-title">⚠️ 발달 지연이 의심됩니다</div>
+      <div class="v-desc">일부 영역에서 또래 발달보다 늦을 수 있어요.<br>발달의 어려움은 조기에 발견할수록 효과적으로 도울 수 있습니다.<br>전문가 상담을 통해 정확한 평가를 받아보세요.</div>
+    </div>
+    <div class="verdict-box verdict-good" id="boxGood">
+      <div class="v-title">✅ 전반적으로 양호합니다</div>
+      <div class="v-desc">현재 연령에 맞는 발달이 잘 이루어지고 있어요.<br>정기적인 발달 모니터링도 큰 도움이 됩니다.<br>궁금한 점이 있으시면 언제든 상담해 주세요.</div>
+    </div>
+    <div class="input-group">
+      <div>
+        <div class="input-label">아이 이름</div>
+        <input type="text" id="childName" placeholder="홍길동">
+      </div>
+      <div>
+        <div class="input-label">아이 생년월일</div>
+        <input type="text" id="childBirth" placeholder="예: 2022-03-15">
+      </div>
+      <div>
+        <div class="input-label">보호자 연락처</div>
+        <input type="text" id="parentPhone" placeholder="010-0000-0000">
+      </div>
+    </div>
+    <button class="send-btn" id="sendBtn" onclick="sendResult()">📤 결과 전송하기</button>
+    <div class="send-done" id="sendDone" style="display:none">✅ 결과가 전송됐습니다.</div>
+    <a class="kakao-btn" href="http://pf.kakao.com/_BBhYG/chat" target="_blank">
+      💬 카카오톡으로 상담 신청하기
+    </a>
+    <button class="reset-btn" onclick="resetAll()">↺ 다시 체크하기</button>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <p>
+    <strong>서울늘봄메디칼내과의원</strong><br>
+    서울시 구로구 구로중앙로 217, 3층<br>
+    📞 02-2675-0295 | 언어치료 · 작업치료 · 인지발달<br><br>
+    이 체크리스트는 참고용이며 전문적인 진단을 대체하지 않습니다.
+  </p>
+</footer>
+
+<script>
+const DATA = {
+  "12~17개월": {
+    "언어발달": [
+      "엄마, 아빠 등 2~3개 단어를 말한다",
+      "이름을 부르면 쳐다보거나 반응한다",
+      "손가락으로 원하는 것을 가리킨다",
+      "간단한 지시(이리 와, 줘)를 이해한다",
+      "의도적인 발성으로 원하는 것을 표현한다"
+    ],
+    "인지발달": [
+      "숨긴 물건을 찾을 수 있다",
+      "컵에 물건을 넣고 꺼낸다",
+      "그림책을 보며 그림을 인식한다",
+      "간단한 모방 놀이를 한다",
+      "친숙한 사물의 용도를 안다"
+    ],
+    "사회성·정서": [
+      "낯선 사람에게 낯가림을 보인다",
+      "주 양육자와의 분리에 반응한다",
+      "다른 아이를 관찰하며 관심을 보인다",
+      "칭찬에 기뻐하거나 반응한다",
+      "거울 속 자신을 알아본다"
+    ],
+    "대근육·소근육": [
+      "혼자 혹은 잡고 걷기 시작한다",
+      "계단을 기어오른다",
+      "두 손으로 물건을 양손에 쥔다",
+      "엄지와 검지로 작은 물건을 집는다",
+      "블록을 2~3개 쌓는다"
+    ]
+  },
+  "18~23개월": {
+    "언어발달": [
+      "두 단어를 연결해서 말한다 (엄마 줘, 물 더)",
+      "50개 이상의 단어를 사용한다",
+      "간단한 질문에 네/아니오로 대답한다",
+      "신체 부위 2~3곳을 가리킨다",
+      "그림책에서 사물을 가리키며 이름을 말한다"
+    ],
+    "인지발달": [
+      "블록을 3~4개 쌓는다",
+      "간단한 심부름을 한다 (가져와, 버려)",
+      "인과관계를 이해한다 (누르면 소리 남)",
+      "모양 끼우기(원, 사각형)를 한다",
+      "간단한 흉내놀이를 한다 (전화놀이, 먹는 척)"
+    ],
+    "사회성·정서": [
+      "어른의 행동을 따라한다",
+      "다른 아이 옆에서 놀려고 한다",
+      "떼쓰기나 고집이 나타난다",
+      "좋아하는 물건이나 사람이 생긴다",
+      "간단한 감정(기쁨, 슬픔)을 표현한다"
+    ],
+    "대근육·소근육": [
+      "혼자 걷고 뛰기 시작한다",
+      "계단을 잡고 오르내린다",
+      "공을 발로 찬다",
+      "숟가락으로 스스로 먹으려 한다",
+      "낙서를 하거나 선을 그린다"
+    ]
+  },
+  "24~29개월": {
+    "언어발달": [
+      "두 단어 이상 문장으로 말한다",
+      "자신의 이름을 말할 수 있다",
+      "간단한 질문에 대답한다 (뭐야? 어디야?)",
+      "친숙한 사물 이름을 말할 수 있다",
+      "일상적인 단어를 50개 이상 사용한다"
+    ],
+    "인지발달": [
+      "블록을 4~6개 쌓는다",
+      "간단한 퍼즐(2~4조각)을 맞춘다",
+      "사물의 기능을 알고 사용한다",
+      "원, 사각형 등 기본 모양을 구별한다",
+      "그림책에서 사물 이름을 가리킨다"
+    ],
+    "사회성·정서": [
+      "또래와 나란히 놀기(평행놀이)를 한다",
+      "싫다/좋다 감정을 표현한다",
+      "어른의 행동을 모방한다",
+      "소유 개념('내 거')이 생긴다",
+      "간단한 역할 놀이(밥 먹기, 자기)를 한다"
+    ],
+    "대근육·소근육": [
+      "뛰기 시작한다",
+      "공을 발로 찬다",
+      "숟가락으로 스스로 먹으려 한다",
+      "선을 모방해서 그린다",
+      "계단을 두 발로 한 칸씩 오른다"
+    ]
+  },
+  "30~35개월": {
+    "언어발달": [
+      "3단어 이상 문장을 말한다",
+      "자기 이름과 나이를 말할 수 있다",
+      "왜? 라는 질문을 자주 한다",
+      "간단한 대화를 주고받을 수 있다",
+      "간단한 동화 내용을 이해한다"
+    ],
+    "인지발달": [
+      "색깔 2~3가지를 구별한다",
+      "큰 것/작은 것을 구별한다",
+      "1~3까지 셀 수 있다",
+      "같은 모양끼리 짝을 맞춘다",
+      "간단한 역할 놀이를 한다"
+    ],
+    "사회성·정서": [
+      "또래와 함께 놀기를 즐긴다",
+      "간단한 규칙이 있는 놀이를 한다",
+      "감정(기쁨, 슬픔, 화남)을 언어로 표현한다",
+      "도움이 필요할 때 요청한다",
+      "어른의 지시를 대부분 따른다"
+    ],
+    "대근육·소근육": [
+      "세발자전거를 탄다",
+      "한 발로 2~3초 선다",
+      "가위로 종이를 자른다",
+      "원을 보고 따라 그린다",
+      "옷을 혼자 입으려고 시도한다"
+    ]
+  },
+  "만3세": {
+    "언어발달": [
+      "4~5단어 문장으로 대화한다",
+      "경험한 일을 순서대로 말한다",
+      "상황에 맞는 언어적 표현을 한다",
+      "자신의 이름과 주소를 말한다",
+      "이야기를 듣고 간단히 내용을 말한다"
+    ],
+    "인지발달": [
+      "5~10까지 수를 센다",
+      "같은 것끼리 분류한다",
+      "전후, 위아래 개념을 이해한다",
+      "간단한 문제를 스스로 해결한다",
+      "다음에 일어날 일을 예측한다"
+    ],
+    "사회성·정서": [
+      "친구와 협동해서 놀이를 한다",
+      "규칙을 지키려 한다",
+      "타인의 감정을 이해하려 한다",
+      "기다리는 것을 어느 정도 참는다",
+      "좋아하는 친구가 생긴다"
+    ],
+    "대근육·소근육": [
+      "공을 던지고 받는다",
+      "계단을 한 발씩 오르내린다",
+      "사람 모양을 그린다",
+      "단추를 잠그고 풀 수 있다",
+      "가위로 선을 따라 자른다"
+    ]
+  },
+  "만4세": {
+    "언어발달": [
+      "6단어 이상 문장으로 자연스럽게 대화한다",
+      "지난 일을 시간 순서대로 이야기한다",
+      "이야기를 듣고 주요 내용을 요약한다",
+      "왜, 어떻게 등 이유와 방법을 설명한다",
+      "간단한 글자(자기 이름 등)를 읽거나 쓰려 한다"
+    ],
+    "인지발달": [
+      "10 이상 수를 세고 간단한 수 개념을 안다",
+      "어제·오늘·내일 시간 개념을 이해한다",
+      "물건을 2가지 기준으로 분류한다",
+      "간단한 규칙의 보드게임이나 카드게임을 한다",
+      "원인과 결과를 연결해 생각한다"
+    ],
+    "사회성·정서": [
+      "친구와 의견 충돌 시 말로 해결하려 한다",
+      "집단 놀이에서 자신의 역할을 수행한다",
+      "규칙을 알고 지키려는 모습을 보인다",
+      "자신의 감정을 적절히 조절한다",
+      "타인을 배려하는 행동을 보인다"
+    ],
+    "대근육·소근육": [
+      "줄넘기나 두 발 모아 뛰기를 할 수 있다",
+      "자전거(보조 바퀴 없이)를 탄다",
+      "글씨나 그림을 또렷하게 그린다",
+      "젓가락을 사용하려 한다",
+      "신발 끈을 묶거나 지퍼를 혼자 올린다"
+    ]
+  },
+  "만5세": {
+    "언어발달": [
+      "복잡한 문장으로 자신의 생각을 표현한다",
+      "이야기를 듣고 내용을 재구성해 말한다",
+      "글자에 관심을 보이고 읽으려 한다",
+      "상황에 맞는 적절한 언어를 사용한다",
+      "자신의 경험을 논리적으로 설명한다"
+    ],
+    "인지발달": [
+      "20 이상 수를 세고 간단한 덧셈을 한다",
+      "요일, 날짜 개념을 이해한다",
+      "복잡한 퍼즐(10조각 이상)을 맞춘다",
+      "규칙을 이해하고 게임에 참여한다",
+      "문제 해결을 위해 계획을 세운다"
+    ],
+    "사회성·정서": [
+      "친구 관계를 스스로 형성하고 유지한다",
+      "감정을 언어로 적절히 표현하고 조절한다",
+      "집단 활동에서 리더 역할을 하기도 한다",
+      "옳고 그름을 판단하려 한다",
+      "타인의 입장을 이해하고 공감한다"
+    ],
+    "대근육·소근육": [
+      "다양한 신체 활동(달리기, 뛰기)이 능숙하다",
+      "자전거를 능숙하게 탄다",
+      "글씨를 또렷하게 쓰려고 한다",
+      "젓가락을 능숙하게 사용한다",
+      "복잡한 만들기나 그리기를 한다"
+    ]
+  },
+};
+
+const DOMAINS = {
+  "언어발달":      { icon: "💬", bar: "#534AB7", light: "#EEEDFE" },
+  "인지발달":      { icon: "💡", bar: "#1D9E75", light: "#E1F5EE" },
+  "사회성·정서":   { icon: "🤝", bar: "#D4537E", light: "#FBEAF0" },
+  "대근육·소근육": { icon: "🏃", bar: "#BA7517", light: "#FAEEDA" }
+};
+
+const AGES = Object.keys(DATA);
+const DOM_KEYS = Object.keys(DOMAINS);
+let cur = AGES[0];
+let checks = {};
+
+function init() {
+  AGES.forEach(a => {
+    checks[a] = {};
+    DOM_KEYS.forEach(d => { checks[a][d] = new Array(DATA[a][d].length).fill(false); });
+  });
+}
+
+function renderTabs() {
+  document.getElementById('ageTabs').innerHTML = AGES.map(a =>
+    `<button class="age-tab${a===cur?' active':''}" onclick="switchAge('${a}')">${a}</button>`
+  ).join('');
+}
+
+function renderDomains() {
+  document.getElementById('domainWrap').innerHTML = DOM_KEYS.map(d => {
+    const items = DATA[cur][d];
+    const cfg = DOMAINS[d];
+    return `
+      <div class="domain-card">
+        <div class="domain-header" style="background:${cfg.light}">
+          <span class="domain-icon">${cfg.icon}</span>
+          <span class="domain-name">${d}</span>
+        </div>
+        <div class="item-list">
+          ${items.map((item, i) => `
+            <div class="item-row" onclick="toggle('${d}',${i})">
+              <div class="cb${checks[cur][d][i]?' on':''}"></div>
+              <span class="item-text${checks[cur][d][i]?' done':''}">${item}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx763hdKMPd_kU4qRmbKHG8cLdCjXt_T0iBi5VPgll7qzs9ylQ32-DCHf6vC1vADZr3/exec';
+
+function renderResult() {
+  const allItems   = DOM_KEYS.reduce((s,d) => s + DATA[cur][d].length, 0);
+  const allChecked = DOM_KEYS.reduce((s,d) => s + checks[cur][d].filter(Boolean).length, 0);
+  const hasAny = allChecked > 0;
+
+  const anyUnchecked = DOM_KEYS.some(d =>
+    checks[cur][d].some(v => !v)
+  );
+
+  const resultWrap = document.getElementById('resultWrap');
+
+  if (hasAny) {
+    resultWrap.style.display = 'block';
+    document.getElementById('boxWarn').className = 'verdict-box verdict-warn' + (anyUnchecked ? ' show' : '');
+    document.getElementById('boxGood').className = 'verdict-box verdict-good' + (!anyUnchecked ? ' show' : '');
+    document.getElementById('sendDone').style.display = 'none';
+    document.getElementById('sendBtn').style.display = 'block';
+  } else {
+    resultWrap.style.display = 'none';
+  }
+}
+
+function sendResult() {
+  const allItems   = DOM_KEYS.reduce((s,d) => s + DATA[cur][d].length, 0);
+  const allChecked = DOM_KEYS.reduce((s,d) => s + checks[cur][d].filter(Boolean).length, 0);
+  const anyUnchecked = DOM_KEYS.some(d => checks[cur][d].some(v => !v));
+  const verdict = anyUnchecked ? '발달 지연 의심' : '양호';
+  const domPcts = {};
+  DOM_KEYS.forEach(d => {
+    const cnt = checks[cur][d].filter(Boolean).length;
+    domPcts[d] = cnt + '/' + DATA[cur][d].length;
+  });
+  const total = Math.round(allChecked / allItems * 100) + '%';
+
+  const childName = document.getElementById('childName').value || '미입력';
+  const childBirth = document.getElementById('childBirth').value || '미입력';
+  const parentPhone = document.getElementById('parentPhone').value || '미입력';
+
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      age: cur,
+      childName: childName,
+      childBirth: childBirth,
+      parentPhone: parentPhone,
+      language: domPcts['언어발달'],
+      cognitive: domPcts['인지발달'],
+      social: domPcts['사회성·정서'],
+      motor: domPcts['대근육·소근육'],
+      verdict: verdict,
+      total: total
+    })
+  });
+
+  document.getElementById('sendBtn').style.display = 'none';
+  document.getElementById('sendDone').style.display = 'block';
+}
+
+function toggle(domain, idx) {
+  checks[cur][domain][idx] = !checks[cur][domain][idx];
+  renderDomains();
+  renderResult();
+}
+
+function switchAge(age) {
+  cur = age;
+  renderTabs();
+  renderDomains();
+  renderResult();
+}
+
+function resetAll() {
+  DOM_KEYS.forEach(d => { checks[cur][d] = new Array(DATA[cur][d].length).fill(false); });
+  renderDomains();
+  renderResult();
+}
+
+init();
+renderTabs();
+renderDomains();
+renderResult();
+</script>
+</body>
+</html>
